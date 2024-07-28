@@ -86,7 +86,7 @@ def calculate_crowding_distance(fitnesses, front):
 def pareto_dominates(a, b):
     return all(x <= y for x, y in zip(a, b)) and any(x < y for x, y in zip(a, b))
 
-def read_and_parse_dataset(file_path):
+def read_dataset(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
     

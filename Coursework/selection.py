@@ -1,18 +1,7 @@
 import random
 
 def tournament_selection(population, fitnesses, tournament_size=2):
-    """
-    Performs tournament selection on the population. Selects individuals by running tournaments
-    among a few individuals chosen at random from the population.
-    
-    Parameters:
-    - population: list of individuals in the population
-    - fitnesses: list of fitness values corresponding to the individuals
-    - tournament_size: number of individuals to compete in each tournament
-    
-    Returns:
-    - selected_individuals: list of selected individuals
-    """
+
     selected_individuals = []
     
     # Perform tournament for each individual to be selected

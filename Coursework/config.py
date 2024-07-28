@@ -31,5 +31,5 @@ def get_operator_function(operator_name):
 crossover_rate = 0.8
 mutation_rate = 0.1
 
-# Number of trials to average results
+# Number of trials selected to average results
 num_trials = 5
