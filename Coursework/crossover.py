@@ -1,69 +1,34 @@
 import random
 
 def single_point_crossover(parent1, parent2):
-    """
-    Perform single-point crossover between two parents to produce two offspring.
-
-    Parameters:
-    - parent1: The first parent (list of job indices).
-    - parent2: The second parent (list of job indices).
-
-    Returns:
-    - child1: The first offspring (list of job indices).
-    - child2: The second offspring (list of job indices).
-    """
-    # Determine the crossover point
-    crossover_point = random.randint(1, len(parent1) - 1)
-    
-    # Create offspring by combining segments from both parents
-    child1 = parent1[:crossover_point] + parent2[crossover_point:]
-    child2 = parent2[:crossover_point] + parent1[crossover_point:]
-    
+    if not isinstance(parent1, list) or not isinstance(parent2, list):
+        print(f"Error: parent1 type: {type(parent1)}, parent2 type: {type(parent2)}")
+    size = len(parent1)
+    point = random.randint(1, size - 1)
+    child1 = parent1[:point] + [gene for gene in parent2 if gene not in parent1[:point]]
+    child2 = parent2[:point] + [gene for gene in parent1 if gene not in parent2[:point]]
     return child1, child2
 
 def two_point_crossover(parent1, parent2):
-    """
-    Perform two-point crossover between two parents to produce two offspring.
-
-    Parameters:
-    - parent1: A list containing all jobs id
-    - parent2: Alist containing all jobs id.
-
-    Returns:
-    - child1: First offspring containing all jobs id
-    - child2: Second offspring containing all jobs id
-    """
-    # Determine two crossover points
-    crossover_point_one = random.randint(1, len(parent1) - 2)
-    crossover_point_two = random.randint(crossover_point_one + 1, len(parent1) - 1)
-    
-    # Create offspring by combining segments from both parents
-    child1 = parent1[:crossover_point_one] + parent2[crossover_point_one:crossover_point_two] + parent1[crossover_point_two:]
-    child2 = parent2[:crossover_point_one] + parent1[crossover_point_one:crossover_point_two] + parent2[crossover_point_two:]
-    
+    if not isinstance(parent1, list) or not isinstance(parent2, list):
+        print(f"Error: parent1 type: {type(parent1)}, parent2 type: {type(parent2)}")
+    size = len(parent1)
+    point1, point2 = sorted(random.sample(range(size), 2))
+    child1 = parent1[:point1] + parent2[point1:point2] + parent1[point2:]
+    child2 = parent2[:point1] + parent1[point1:point2] + parent2[point2:]
     return child1, child2
 
 def uniform_crossover(parent1, parent2):
-    """
-    Perform uniform crossover between two parents to produce two offspring.
-
-     Parameters:
-    - parent1: A list containing all jobs id
-    - parent2: Alist containing all jobs id.
-
-    Returns:
-    - child1: First offspring containing all jobs id
-    - child2: Second offspring containing all jobs id
-    """
-    child1 = child2 = []
-    
-    # Perform uniform crossover by randomly selecting genes from each parent
-    for gene1, gene2 in zip(parent1, parent2):
+    if not isinstance(parent1, list) or not isinstance(parent2, list):
+        print(f"Error: parent1 type: {type(parent1)}, parent2 type: {type(parent2)}")
+    size = len(parent1)
+    child1 = []
+    child2 = []
+    for i in range(size):
         if random.random() < 0.5:
-            child1.append(gene1)
-            child2.append(gene2)
+            child1.append(parent1[i])
+            child2.append(parent2[i])
         else:
-            child1.append(gene2)
-            child2.append(gene1)
-    
+            child1.append(parent2[i])
+            child2.append(parent1[i])
     return child1, child2

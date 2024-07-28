@@ -6,42 +6,23 @@ from utils import generate_initial_population, calculate_fitness, non_dominated_
 import time
 
 def nsga_ii(jobs, changeover_costs, population_size, generations, crossover_rate, mutation_rate, selection_operator, crossover_operator, mutation_operator):
-    """
-    Implements the NSGA-II (Non-dominated Sorting Genetic Algorithm II) for solving the multi-objective scheduling problem.
-
-    Parameters:
-    - jobs: list of jobs with their due dates and processing times
-    - changeover_costs: matrix of changeover costs between jobs
-    - population_size: size of the population
-    - generations: number of generations to run the algorithm
-    - crossover_rate: probability of crossover
-    - mutation_rate: probability of mutation
-    - selection_operator: function for selecting parents
-    - crossover_operator: function for performing crossover
-    - mutation_operator: function for performing mutation
-
-    Returns:
-    - pareto_front: list of individuals in the final Pareto front
-    - running_time: total running time of the algorithm
-    - fitness_history: list of average fitness values for each generation
-    """
-    # Generate initial population
     population = generate_initial_population(jobs, population_size)
-    
-    # Start measuring time
-    start_time = time.time()
-    
-    fitness_history = []
+    fitness_evolution = []
 
-    # Main loop for each generation
+    start_time = time.time()  # Start measuring time
+    
     for generation in range(generations):
-        # Calculate fitness for each individual in the population
+        # Calculate fitness for each individual
         fitnesses = [calculate_fitness(ind, jobs, changeover_costs) for ind in population]
+        
+        # Record average fitness for this generation
+        avg_fitness = sum(sum(fit) for fit in fitnesses) / len(fitnesses)
+        fitness_evolution.append(avg_fitness)
         
         # Non-dominated sorting
         fronts = non_dominated_sorting(population, fitnesses)
         
-        # Calculate crowding distance for individuals in each front
+        # Calculate crowding distance
         distances = calculate_crowding_distance(fitnesses, fronts)
         
         new_population = []
@@ -55,38 +36,52 @@ def nsga_ii(jobs, changeover_costs, population_size, generations, crossover_rate
             new_population.extend(sorted_front[:remaining])
         
         # Selection
-        selected_population = selection_operator(new_population, fitnesses)
-        
-        # Generate offspring through crossover and mutation
+        if selection_operator == 'tournament':
+            selected_population = tournament_selection(new_population, fitnesses)
+        elif selection_operator == 'roulette':
+            selected_population = roulette_wheel_selection(new_population, fitnesses)
+        elif selection_operator == 'rank':
+            selected_population = rank_based_selection(new_population, fitnesses)
+        else:
+            selected_population = new_population  # Default to no selection
+
+        # Generate offspring
         offspring_population = []
         while len(offspring_population) < population_size:
             parents = random.sample(selected_population, 2)
             if random.random() < crossover_rate:
-                child1, child2 = crossover_operator(parents[0], parents[1])
+                if crossover_operator == 'single_point':
+                    child1, child2 = single_point_crossover(population[parents[0]], population[parents[1]])
+                elif crossover_operator == 'two_point':
+                    child1, child2 = two_point_crossover(population[parents[0]], population[parents[1]])
+                elif crossover_operator == 'uniform':
+                    child1, child2 = uniform_crossover(population[parents[0]], population[parents[1]])
+                else:
+                    child1, child2 = population[parents[0]], population[parents[1]]  # Default to no crossover
             else:
-                child1, child2 = parents[0], parents[1]
-            
-            mutation_operator(child1, mutation_rate)
-            mutation_operator(child2, mutation_rate)
+                child1, child2 = population[parents[0]], population[parents[1]]  # Default to no crossover
+
+            # Mutation
+            if mutation_operator == 'swap':
+                swap_mutation(child1, mutation_rate)
+                swap_mutation(child2, mutation_rate)
+            elif mutation_operator == 'scramble':
+                scramble_mutation(child1, mutation_rate)
+                scramble_mutation(child2, mutation_rate)
+            elif mutation_operator == 'inversion':
+                inversion_mutation(child1, mutation_rate)
+                inversion_mutation(child2, mutation_rate)
 
             offspring_population.extend([child1, child2])
         
-        # Combine the old and new populations and select the next generation
         population = new_population + offspring_population
         
         # Ensure all individuals are valid lists of job indices
-        population = [ind for ind in population if isinstance(ind, list) and all(isinstance(x, int) for x in ind)]
-
-        # Record average fitness for the generation
-        avg_fitness = sum([calculate_fitness(ind, jobs, changeover_costs) for ind in population]) / len(population)
-        fitness_history.append(avg_fitness)
+        population = [ind for ind in (new_population + offspring_population) if isinstance(ind, list) and all(isinstance(x, int) for x in ind)]
     
-    # End measuring time
-    end_time = time.time()
-    running_time = end_time - start_time
+    end_time = time.time()  # End measuring time
+    running_time = end_time - start_time  # Calculate running time
     
-    # Calculate fitness for the final population
     fitnesses = [calculate_fitness(ind, jobs, changeover_costs) for ind in population]
     pareto_front = non_dominated_sorting(population, fitnesses)[0]
-    
-    return [fitnesses[i] for i in pareto_front], running_time, fitness_history
+    return [fitnesses[i] for i in pareto_front], running_time, fitness_evolution

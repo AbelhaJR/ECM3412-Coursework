@@ -1,35 +1,23 @@
 import random
 
-def swap_mutation(individual, mutation_rate):
-  
-    # Iterate over each gene in the individual
+def swap_mutation(individual, mutation_rate=0.1):
+    if not isinstance(individual, list):
+        print(f"Error: individual type: {type(individual)}")
     for i in range(len(individual)):
         if random.random() < mutation_rate:
-            # Select a random gene to swap with
             j = random.randint(0, len(individual) - 1)
-            # Swap the genes
             individual[i], individual[j] = individual[j], individual[i]
 
-def scramble_mutation(individual, mutation_rate):
-  
+def scramble_mutation(individual, mutation_rate=0.1):
+    if not isinstance(individual, list):
+        print(f"Error: individual type: {type(individual)}")
     if random.random() < mutation_rate:
-        # Select two random points to define the subset
-        start = random.randint(0, len(individual) - 2)
-        end = random.randint(start + 1, len(individual) - 1)
-        # Scramble the subset of genes
-        subset = individual[start:end]
-        random.shuffle(subset)
-        # Replace the original subset with the scrambled subset
-        individual[start:end] = subset
+        start, end = sorted(random.sample(range(len(individual)), 2))
+        individual[start:end] = random.sample(individual[start:end], len(individual[start:end]))
 
-def inversion_mutation(individual, mutation_rate):
-    
+def inversion_mutation(individual, mutation_rate=0.1):
+    if not isinstance(individual, list):
+        print(f"Error: individual type: {type(individual)}")
     if random.random() < mutation_rate:
-        # Select two random points to define the subset
-        start = random.randint(0, len(individual) - 2)
-        end = random.randint(start + 1, len(individual) - 1)
-        # Invert the order of the genes in the subset
-        subset = individual[start:end]
-        subset.reverse()
-        # Replace the original subset with the inverted subset
-        individual[start:end] = subset
+        start, end = sorted(random.sample(range(len(individual)), 2))
+        individual[start:end] = individual[start:end][::-1]

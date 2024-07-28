@@ -1,4 +1,8 @@
-from nsga_ii import tournament_selection, roulette_wheel_selection, rank_based_selection, single_point_crossover, two_point_crossover, uniform_crossover, swap_mutation, scramble_mutation, inversion_mutation
+# config.py
+import random
+from selection import tournament_selection, roulette_wheel_selection, rank_based_selection
+from crossover import single_point_crossover, two_point_crossover, uniform_crossover
+from mutation import swap_mutation, scramble_mutation, inversion_mutation
 
 # Define the key configurations
 key_configurations = [
@@ -27,9 +31,7 @@ def get_operator_function(operator_name):
     }
     return operators[operator_name]
 
-# Fixed crossover and mutation rates
+# Fixed parameters
 crossover_rate = 0.8
 mutation_rate = 0.1
-
-# Number of trials selected to average results
 num_trials = 5
